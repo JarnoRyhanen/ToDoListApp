@@ -16,7 +16,6 @@ import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
-import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -24,7 +23,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TaskFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClickListener {
+class TaskFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClickListener,
+    SearchView.OnQueryTextListener {
 
     private val viewModel: TasksViewModel by viewModels()
 
@@ -93,10 +93,10 @@ class TaskFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
         val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView
 
-        searchView.onQueryTextChanged {
-            viewModel.searchQuery.value = it
-        }
-
+//        searchView.onQueryTextChanged {
+//            viewModel.searchQuery.value = it
+//        }
+        searchView.setOnQueryTextListener(this)
         viewLifecycleOwner.lifecycleScope.launch {
             menu.findItem(R.id.action_hide_completed_tasks).isChecked =
                 viewModel.preferencesFlow.first().hideCompleted
@@ -125,5 +125,14 @@ class TaskFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        viewModel.searchQuery.value = newText.orEmpty()
+        return true
     }
 }
